@@ -1,0 +1,6 @@
+This repository is created for a binary RGB NeoPixel clock.
+The idea and the first desing belonds to dr_muesli:
+You cann find his account at: https://woof.tech/@dr_muesli
+    The project is not and will not be used for moneymaking .
+All copy right belong to the first author.
+ I hope the improwments of the desing will be helpfull and interesting.
