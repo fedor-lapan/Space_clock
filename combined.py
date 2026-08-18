@@ -59,6 +59,7 @@ class Time:
         self.np = neopixel.NeoPixel(Pin(self.np_pin), 45)
         self.np.fill((0, 0, 0))
         self.np.write()
+        print("Neopixels connected")
     def network_connection(self):
         wlan = network.WLAN(network.STA_IF)
         wlan.active(False)   
@@ -73,7 +74,9 @@ class Time:
                 attempt += 1
             #print(wlan.ifconfig())
             if wlan.isconnected():
+                print("Connected to networks succesfully")
                 return True
+                
             else:
                 return False
     
@@ -82,9 +85,9 @@ class Time:
         while self.network_connection() is not True and rate > 0:
             time.sleep(2)
             rate -= 1
-        with open("debug.txt", "w") as f:
+        with open("debug.txt", "a") as f:
             if rate > 0:
-                print("True")
+                print("Device connection suceeded")
                 f.write(f"Connecton to {self.ssid} completed\n")
                 return True
             else:
@@ -125,6 +128,7 @@ class Time:
         minute = int(data['datetime'].split('-')[2].split('T')[1].split(':')[1])
         seconds = int(data['datetime'].split('-')[2].split(":")[2].split(".")[0])
         self.rtc.datetime((year, mounth, day, 0, hour, minute, seconds, 0))
+        print("Time set as: ", end = "")
         print( (year, mounth, day, 0, hour, minute, seconds, 0) )
         return (year, mounth, day, 0, hour, minute, seconds, 0)
     def recive_time(self):
@@ -138,6 +142,7 @@ class Time:
         with open("debug.txt", "a+") as f:
             f.write("Application completed:\n")
             f.write(f"{hours}:{minutes}\n")
+        print("Current time recived ")
         return (str(hours), str(minutes))
     
     def random_generation(self):
@@ -165,6 +170,7 @@ class Time:
         already_used = set()
         output = [[],[],[],[]]
         usage_array = [hour_1, hour_2, minute_1, minute_2]
+        print(f"Time converted into {usage_array}")
 
         def random_value(group):
             return random.choice(group)
@@ -180,6 +186,7 @@ class Time:
                             break
                 #print(already_used)
                 already_used.clear()
+        print(f"Random pixels were selected: {output}")
         return output
     def weather_app(self):
         gc.collect()
@@ -194,6 +201,7 @@ class Time:
         with open("debug.txt", "a+") as f:
             f.write("Application completed:\n")
             f.write(f"Sunshine: {sun}, Rain amount: {rain}, Temperature: {temp}\n")
+        print(f"Weather recived: {rain, sun, temp}")
         return (sun, rain, temp)
     def converter(self, w_type, value):
         if w_type == "r":
@@ -241,6 +249,7 @@ class Time:
                 #print(value)
                 pixel_s += 1
             current_status += 1
+        print(f"Modified weather for pixel showcase {res}")
         return res
     def draw_time(self, pixels)-> None:
         """
@@ -263,40 +272,47 @@ class Time:
                     self.np[pixel] = color
         
     def draw_weather(self, data):
+        print("DRAW WEATHER WAS CALLED")
         time = self.recive_time()
 
-        temp = data[0]
+        temp = data[2]
         rain = data[1]
-        sun = data[2]
+        sun = data[0]
         b_pixel = self.pixel_start
         if int(time[0]) < 21 and int(time[0]) > 7:
             for group in range(1, 4):
                 for i in range(0, 3):
-                    if group == 1:
-                        self.np[b_pixel+i] = (sun[i], sun[i] // 2, 0)
+                    if group == 3:
+                        self.np[b_pixel+i] = (sun[i], sun[i], 0)
+                        print(f"{b_pixel+i}, {group}")
                     if group == 2:
                         self.np[b_pixel+i] = (0, 0, rain[i])
-                    if group == 3:
+                        print(f"{b_pixel+i}, {group}")
+                    if group == 1:
                         if temp[i] <= 0:
                             self.np[b_pixel+i] = (0, 0, abs(temp[i]))
-                            print("HELLLOOO")
                         else:
-                            print(temp[i])
                             self.np[b_pixel+i] = (temp[i], 0, 0)
+                        print(f"{b_pixel+i}, {group}")
                 b_pixel += 3
         else:
-            for group in range(1, 4):
-                for i in range(1, 3):
-                    if group == 1:
-                        self.np[b_pixel+i] = (sun[i]//10, sun[i] // 20, 0)
+            for group in range(1, 3):
+                for i in range(0, 3):
+                    if group == 3:
+                        self.np[b_pixel+i] = (sun[i]//10, sun[i] // 10, 0)
+                        print(f"{b_pixel+i}, {group}")
                     if group == 2:
                         self.np[b_pixel+i] = (0, 0, rain[i]//10)
-                    if group == 3:
+                        print(f"{b_pixel+i}, {group}")
+                    if group == 1:
                         if temp[i] <= 0:
                             self.np[b_pixel+i] = (0, 0, abs(temp[i]//10))
+                        elif temp[i] == 0:
+                            self.np[b_pixel+i] = (100, 100, 100)
                         else:
                             self.np[b_pixel+i] = (temp[i]//10, 0, 0)
-                b_pixel += 3
+                        print(f"{b_pixel+i}, {group}")
+                    b_pixel += 3
 
 
 
