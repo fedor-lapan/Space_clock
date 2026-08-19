@@ -47,7 +47,7 @@ class Time:
             pixel_start -> Starting pixel of the  weather
         """
         self.rtc= rtc
-        self.np_pin = 0
+        self.np_pin = 0 # 2 if the espc3 seed studio xio is used
 
         #self.pixel_start = 36
         self.url = api
@@ -140,7 +140,6 @@ class Time:
         minutes = time[5]
         #print(hours, minutes)
         with open("debug.txt", "a+") as f:
-            f.write("Application completed:\n")
             f.write(f"{hours}:{minutes}\n")
         print("Current time recived ")
         return (str(hours), str(minutes))
@@ -258,7 +257,8 @@ class Time:
         #self.np.fill((0, 0, 0))
         time = self.recive_time()
         #print(time)
-        if int(time[0]) < 21 and int(time[0]) > 7:
+        is_datetime = ( 21 > int(time[0]) > 7)
+        if is_datetime :
             #print("hi")
             pattern = pixels
             for group, color in zip(pattern, COLORS_DAY):
@@ -270,56 +270,50 @@ class Time:
             for group, color in zip(pattern, COLORS_NIGHT):
                 for pixel in group:
                     self.np[pixel] = color
-        
     def draw_weather(self, data):
+        print("Received Weather Data:", data)
         print("DRAW WEATHER WAS CALLED")
-        time = self.recive_time()
-
-        temp = data[2]
-        rain = data[1]
-        sun = data[0]
-        b_pixel = self.pixel_start
-        if int(time[0]) < 21 and int(time[0]) > 7:
-            for group in range(1, 4):
-                for i in range(0, 3):
-                    if group == 3:
-                        self.np[b_pixel+i] = (sun[i], sun[i], 0)
-                        print(f"{b_pixel+i}, {group}")
-                    if group == 2:
-                        self.np[b_pixel+i] = (0, 0, rain[i])
-                        print(f"{b_pixel+i}, {group}")
-                    if group == 1:
-                        if temp[i] <= 0:
-                            self.np[b_pixel+i] = (0, 0, abs(temp[i]))
-                        else:
-                            self.np[b_pixel+i] = (temp[i], 0, 0)
-                        print(f"{b_pixel+i}, {group}")
-                b_pixel += 3
-        else:
-            for group in range(1, 3):
-                for i in range(0, 3):
-                    if group == 3:
-                        self.np[b_pixel+i] = (sun[i]//10, sun[i] // 10, 0)
-                        print(f"{b_pixel+i}, {group}")
-                    if group == 2:
-                        self.np[b_pixel+i] = (0, 0, rain[i]//10)
-                        print(f"{b_pixel+i}, {group}")
-                    if group == 1:
-                        if temp[i] <= 0:
-                            self.np[b_pixel+i] = (0, 0, abs(temp[i]//10))
-                        elif temp[i] == 0:
-                            self.np[b_pixel+i] = (100, 100, 100)
-                        else:
-                            self.np[b_pixel+i] = (temp[i]//10, 0, 0)
-                        print(f"{b_pixel+i}, {group}")
-                    b_pixel += 3
-
-
-
-                
         
+        time_data = self.recive_time() 
+        hour = int(time_data[0])
+        is_daytime = (21 > hour > 7)
+        if is_daytime: 
+            dim_factor = 1 
+        else:
+            dim_factor = 10 
 
-        return True
+
+        sun_list  = data[0]
+        rain_list = data[1]
+        temp_list = data[2]
+        
+        base = self.pixel_start
+
+
+        for i in range(0, 3):
+            
+            # --- 3. SUN PIXELS (Pixels base+0, base+1, base+2) ---
+            sun_val = sun_list[i] // dim_factor
+            self.np[base + i] = (sun_val, sun_val, 0)  # Yellow (Red + Green)
+            print(f"Pixel {base + i} (Sun {i}): {(sun_val, sun_val, 0)}")
+
+            # --- 4. RAIN PIXELS (Pixels base+3, base+4, base+5) ---
+            rain_val = rain_list[i] // dim_factor
+            self.np[base + i + 3] = (0, 0, rain_val)   # Blue
+            print(f"Pixel {base + i + 3} (Rain {i}): {(0, 0, rain_val)}")
+
+
+            temp_val = temp_list[i] // dim_factor
+            if temp_val < 0:
+                temp_color = (0, 0, abs(temp_val))     # Cold = Blue
+            elif temp_val == 0:
+                temp_color = (50, 50, 50)              # Freezing = Dim White
+            else:
+                temp_color = (temp_val, 0, 0)          # Hot = Red
+                
+            self.np[base + i + 6] = temp_color
+            print(f"Pixel {base + i + 6} (Temp {i}): {temp_color}")
+
     def cycle(self):
         self.np_connect()
         self.device_connection()
