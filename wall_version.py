@@ -278,7 +278,7 @@ class Time:
         hour = int(time_data[0])
         is_daytime = (21 > hour > 7)
         if is_daytime: 
-            dim_factor = 1 
+            dim_factor = 1
         else:
             dim_factor = 10 
 
@@ -299,17 +299,17 @@ class Time:
 
             # --- 4. RAIN PIXELS (Pixels base+3, base+4, base+5) ---
             rain_val = rain_list[i] // dim_factor
-            self.np[base + i + 3] = (0, 0, rain_val)   # Blue
+            self.np[base + i + 3] = (0, 0, int(round(rain_val*1.5, 0)))   # Blue
             print(f"Pixel {base + i + 3} (Rain {i}): {(0, 0, rain_val)}")
 
 
             temp_val = temp_list[i] // dim_factor
             if temp_val < 0:
-                temp_color = (0, 0, abs(temp_val))     # Cold = Blue
+                temp_color = (0, 0, abs(temp_val)-10)     # Cold = Blue
             elif temp_val == 0:
                 temp_color = (50, 50, 50)              # Freezing = Dim White
             else:
-                temp_color = (temp_val, 0, 0)          # Hot = Red
+                temp_color = (int(temp_val // 3), 0, 0)          # Hot = Red
                 
             self.np[base + i + 6] = temp_color
             print(f"Pixel {base + i + 6} (Temp {i}): {temp_color}")
