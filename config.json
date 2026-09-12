@@ -1,0 +1,19 @@
+{
+    "personal_data" : 
+    {
+        "network" : "ShmumaIoT",
+        "password" : "BOleNetI"
+
+    },
+
+    "overall_data" :
+     {
+        "URL" : "https://time.now/developer/api/timezone/Europe/Berlin",
+        "Time_zone" : "Europe/Berlin"
+
+     }
+
+
+
+
+}
