@@ -22,9 +22,15 @@ import neopixel
 import gc
 import random
 
+"""
+The color groups determine what color wil be displayed for specific siruations.
+COLORS_DAY = The colors for each area for day lightning
+COLORS_NIGHT = The colors for each area for night lightning
+COLOR_GROUPS = The pixel areas as an arey with pixel.
 
-COLORS_DAY = [(0, 0, 30),(30, 0, 0),(0, 30, 0),(0, 30, 30)]
-COLORS_NIGHT =  [(0, 0, 1),(1, 0, 0),(0, 1, 0),(0, 1, 1)]
+"""
+COLORS_DAY = [(0, 0, 30),(30, 0, 0),(0, 30, 0),(0, 30, 30)]         # !!! set by json file
+COLORS_NIGHT =  [(0, 0, 1),(1, 0, 0),(0, 1, 0),(0, 1, 1)]           # !!! set by json file
 COLOR_GROUPS = [
             [0, 1, 2],
             [6, 7, 8, 12, 13, 14, 18, 19, 20],
@@ -34,8 +40,8 @@ COLOR_GROUPS = [
 
 class Time:
     def __init__(self, ssid: str, pas_code: str, api: str, rtc: RTC):
-        self.ssid = ssid
-        self.pas_code = pas_code
+        self.ssid = ssid        # !!! set by json file
+        self.pas_code = pas_code        # !!! set by json file
         """ 
         Varaible explanation:
             self.colors ( group of 2 ) -> manadge each color of evry sector
@@ -47,20 +53,26 @@ class Time:
             pixel_start -> Starting pixel of the  weather
         """
         self.rtc= rtc
-        self.np_pin = 2 # 2 if the espc3 seed studio xio is used
+        self.np_pin = 0 # 2 if the espc3 seed studio xio is used
 
         #self.pixel_start = 36
         self.url = api
         self.pixel_start = 36
         self.url_w = "https://api.open-meteo.com/v1/forecast?latitude=52.21099&longitude=7.02238&daily=temperature_2m_max,rain_sum,sunshine_duration&timezone=Europe%2FBerlin&forecast_days=3"
-
+        # weather url 
 
     def np_connect(self):
+        """
+        Checks the neo pixel connection between the esp and the neopixel strip
+        """
         self.np = neopixel.NeoPixel(Pin(self.np_pin), 60)
         self.np.fill((0, 0, 0))
         self.np.write()
         print("Neopixels connected")
     def network_connection(self):
+        """
+        Checks the nethwork connection 
+        """
         wlan = network.WLAN(network.STA_IF)
         wlan.active(False)   
         wlan.active(True)   
@@ -115,7 +127,9 @@ class Time:
     """
 
     def rtc_tupple(self):# -> Tupple
-        #Recives the json pack from the api and saves it inside of the memory
+        """"
+        Requests the time data from an api and saves it as an rtc tupple
+        """
         response = urequests.get(self.url, timeout= 10.0)
         data = response.json()
         response.close()
@@ -145,6 +159,9 @@ class Time:
         return (str(hours), str(minutes))
     
     def random_generation(self):
+        """
+        Converts the time into a better format from a sring to array.
+        """
         time = self.recive_time()
         hours = time[0]
         """
@@ -188,6 +205,10 @@ class Time:
         print(f"Random pixels were selected: {output}")
         return output
     def weather_app(self):
+        """
+        Requeasts the weather data from an api. Important:
+        Replace the cordinates fron a json file
+        """
         gc.collect()
         response = urequests.get(self.url_w, timeout = 10.0)
         data = response.json()
@@ -316,7 +337,11 @@ class Time:
 
     def cycle(self):
         self.np_connect()
-        self.device_connection()
+
+        if self.device_connection():
+            pass
+        else:
+            return False
         self.rtc_tupple()
         #weather = self.set_weather()
         #print(weather)
