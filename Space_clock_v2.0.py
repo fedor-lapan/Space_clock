@@ -32,10 +32,10 @@ COLOR_GROUPS = The pixel areas as an arey with pixel.
 COLORS_DAY = [(0, 0, 30),(30, 0, 0),(0, 30, 0),(0, 30, 30)]         # !!! set by json file
 COLORS_NIGHT =  [(0, 0, 1),(1, 0, 0),(0, 1, 0),(0, 1, 1)]           # !!! set by json file
 COLOR_GROUPS = [
-            [0, 1, 2],
-            [6, 7, 8, 12, 13, 14, 18, 19, 20],
-            [24, 25, 26, 30 , 31, 32],
-            [36, 37, 38, 42, 43, 44, 48, 49, 50]
+            [0, 17, 18],
+            [1, 2, 3, 14, 15, 16, 19, 20, 21],
+            [4, 5, 12, 13, 22, 23],
+            [6, 7, 8, 9, 10, 11, 24, 25, 26]
             ]
 
 class Time:
@@ -107,12 +107,12 @@ class Time:
                 return False
         
 
-    """
+    
     def testing(self)-> None:
         #Function which tests all the colors ( light all LED's in  specific colors)
         count = 1
         print("at start")
-        for group in self.groups:
+        for group in COLOR_GROUPS:
             for pix in group:
                 if count == 1:
                     self.np[pix] = (0, 0, 100)
@@ -124,7 +124,7 @@ class Time:
                     self.np[pix] = (0, 100, 100)
                 self.np.write()
             count += 1
-    """
+    
 
     def rtc_tupple(self):# -> Tupple
         """"
@@ -275,6 +275,9 @@ class Time:
         """
         Displays the valus from the generation, also changes mod from 21 to 7 o'clock
         """
+        for i in range(0, 35):
+            self.np[i] = (0, 0, 0)
+            self.np.write()
         #self.np.fill((0, 0, 0))
         time = self.recive_time()
         #print(time)
@@ -293,7 +296,7 @@ class Time:
                     self.np[pixel] = color
     def draw_weather(self, data):
         print("Received Weather Data:", data)
-        print("DRAW WEATHER WAS CALLED")
+        print("DRAW WEATHER WAS CALLED Was Called Was called !!!!!!!!!")
         
         time_data = self.recive_time() 
         hour = int(time_data[0])
@@ -303,37 +306,36 @@ class Time:
         else:
             dim_factor = 10 
 
-
-        sun_list  = data[0]
-        rain_list = data[1]
-        temp_list = data[2]
-        
-        base = self.pixel_start
-
-
-        for i in range(0, 3):
+    
+        pixel_point = self.pixel_start
+        current = 0
+        infill = (255, 255, 255)
+        for index, group in enumerate(data):
+            print("IN LOOP")
+            for i in range(3):
+                if index == 0:
+                    self.np[pixel_point+i] = (group[i]-dim_factor, group[i]-dim_factor, 0)
+                    print(f"Just wrote at {pixel_point+i}")
+                elif index == 1:
+                    self.np[pixel_point+i] = (0, 0, group[i]-dim_factor)
+                else:
+                    if group[i] < 0:
+                        self.np[pixel_point+i] = (0, 0, group[i]-dim_factor)
+                    elif group == 0:
+                        self.np[pixel_point+i] = (100, 100, 100)
+                    else:
+                        self.np[pixel_point+i] = (group[i]-dim_factor, 0, 0)
+                    
+                print(f"Just wrote at {pixel_point+i}")
             
-            # --- 3. SUN PIXELS (Pixels base+0, base+1, base+2) ---
-            sun_val = sun_list[i] // dim_factor
-            self.np[base + i] = (sun_val, sun_val, 0)  # Yellow (Red + Green)
-            print(f"Pixel {base + i} (Sun {i}): {(sun_val, sun_val, 0)}")
-
-            # --- 4. RAIN PIXELS (Pixels base+3, base+4, base+5) ---
-            rain_val = rain_list[i] // dim_factor
-            self.np[base + i + 3] = (0, 0, int(round(rain_val*1.5, 0)))   # Blue
-            print(f"Pixel {base + i + 3} (Rain {i}): {(0, 0, rain_val)}")
-
-
-            temp_val = temp_list[i] // dim_factor
-            if temp_val < 0:
-                temp_color = (0, 0, abs(temp_val)-10)            # Cold = Blue
-            elif temp_val == 0:
-                temp_color = (50, 50, 50)                        # Freezing = Dim White
-            else:
-                temp_color = (int(temp_val // 3), 0, 0)          # Hot = Red
-                
-            self.np[base + i + 6] = temp_color
-            print(f"Pixel {base + i + 6} (Temp {i}): {temp_color}")
+                #self.np[pixel_point + i] = infill
+                #self.np.write()
+            pixel_point += 3
+                #self.np[pixel_point] = (10, group[i], 0)
+        self.np.write()
+        print("ENDING ENDING")
+        print(current)
+            
 
     def cycle(self):
         self.np_connect()
@@ -343,24 +345,27 @@ class Time:
         else:
             return False
         self.rtc_tupple()
-        #weather = self.set_weather()
+        weather = self.set_weather()
+        self.draw_weather(weather)
+        
         #print(weather)
+
         time_show = self.random_generation()
-        refresh_rate = 1440
-        #self.draw_weather(weather)
+        refresh_rate = 5
+
         while True:
             time_show = self.random_generation()
             refresh_rate -= 1
             if refresh_rate == 0:
-                #weather = self.set_weather()
+                weather = self.set_weather()
                 self.rtc_tupple()
-                #self.draw_weather(weather)
-                print("Update")
-            self.np.fill((0, 0, 0))
+                self.draw_weather(weather)
+                print("UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+            #self.np.fill((0, 0, 0))
             self.draw_time(time_show)
             #self.draw_weather(weather)
             self.np.write()
-            time.sleep(30)
+            time.sleep(5)
 
             
 
