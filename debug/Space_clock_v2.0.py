@@ -16,11 +16,11 @@ Vcc = 5v
 #     mashine for RTC and Pin conffiguration
 from machine import Pin, RTC
 import time
-import network
-import urequests
-import neopixel
-import gc
-import random
+import network      # wifif connection
+import urequests    # api requests
+import neopixel     # neopixel 
+import gc           # memory optimaser
+import random       # random pixel optimisation
 
 """
 The color groups determine what color wil be displayed for specific siruations.
@@ -31,7 +31,7 @@ COLOR_GROUPS = The pixel areas as an arey with pixel.
 """
 COLORS_DAY = [(0, 0, 30),(30, 0, 0),(0, 30, 0),(0, 30, 30)]         # !!! set by json file
 COLORS_NIGHT =  [(0, 0, 1),(1, 0, 0),(0, 1, 0),(0, 1, 1)]           # !!! set by json file
-COLOR_GROUPS = [
+COLOR_GROUPS = [                                                    # !!! set by json file
             [0, 17, 18],
             [1, 2, 3, 14, 15, 16, 19, 20, 21],
             [4, 5, 12, 13, 22, 23],
@@ -40,7 +40,7 @@ COLOR_GROUPS = [
 
 class Time:
     def __init__(self, ssid: str, pas_code: str, api: str, rtc: RTC):
-        self.ssid = ssid        # !!! set by json file
+        self.ssid = ssid                # !!! set by json file
         self.pas_code = pas_code        # !!! set by json file
         """ 
         Varaible explanation:
@@ -68,7 +68,7 @@ class Time:
         self.np = neopixel.NeoPixel(Pin(self.np_pin), 60)
         self.np.fill((0, 0, 0))
         self.np.write()
-        print("Neopixels connected")
+        print("Neopixels initzilized\n\t;")
     def network_connection(self):
         """
         Checks the nethwork connection 
@@ -86,7 +86,7 @@ class Time:
                 attempt += 1
             #print(wlan.ifconfig())
             if wlan.isconnected():
-                print("Connected to networks succesfully")
+                print("Connected to networks succesfully\n\t;")
                 return True
                 
             else:
@@ -99,7 +99,7 @@ class Time:
             rate -= 1
         with open("debug.txt", "a") as f:
             if rate > 0:
-                print("Device connection suceeded")
+                print("Device connection suceeded\n\t;")
                 f.write(f"Connecton to {self.ssid} completed\n")
                 return True
             else:
@@ -109,7 +109,7 @@ class Time:
 
     
     def testing(self)-> None:
-        #Function which tests all the colors ( light all LED's in  specific colors)
+        # Function which tests all the colors ( light all LED's in  specific colors)
         count = 1
         print("at start")
         for group in COLOR_GROUPS:
@@ -142,8 +142,8 @@ class Time:
         minute = int(data['datetime'].split('-')[2].split('T')[1].split(':')[1])
         seconds = int(data['datetime'].split('-')[2].split(":")[2].split(".")[0])
         self.rtc.datetime((year, mounth, day, 0, hour, minute, seconds, 0))
-        print("Time set as: ", end = "")
-        print( (year, mounth, day, 0, hour, minute, seconds, 0) )
+        #print("Time set as: ", end = "")
+        print("Time set in rtc\n\t;")
         return (year, mounth, day, 0, hour, minute, seconds, 0)
     def recive_time(self):
         """
@@ -155,7 +155,6 @@ class Time:
         #print(hours, minutes)
         with open("debug.txt", "a+") as f:
             f.write(f"{hours}:{minutes}\n")
-        print("Current time recived ")
         return (str(hours), str(minutes))
     
     def random_generation(self):
@@ -202,7 +201,7 @@ class Time:
                             break
                 #print(already_used)
                 already_used.clear()
-        print(f"Random pixels were selected: {output}")
+        print(f"Random pixels were selected\n\t;")
         return output
     def weather_app(self):
         """
@@ -221,7 +220,7 @@ class Time:
         with open("debug.txt", "a+") as f:
             f.write("Application completed:\n")
             f.write(f"Sunshine: {sun}, Rain amount: {rain}, Temperature: {temp}\n")
-        print(f"Weather recived: {rain, sun, temp}")
+        print(f"Weather recived\n\t;")
         return (sun, rain, temp)
     def converter(self, w_type, value):
         if w_type == "r":
@@ -269,7 +268,7 @@ class Time:
                 #print(value)
                 pixel_s += 1
             current_status += 1
-        print(f"Modified weather for pixel showcase {res}")
+        #print(f"Modified weather for pixel showcase done \n\t;")
         return res
     def draw_time(self, pixels)-> None:
         """
@@ -295,46 +294,43 @@ class Time:
                 for pixel in group:
                     self.np[pixel] = color
     def draw_weather(self, data):
-        print("Received Weather Data:", data)
-        print("DRAW WEATHER WAS CALLED Was Called Was called !!!!!!!!!")
+        print("Received Weather Data\n\t;" )
         
         time_data = self.recive_time() 
         hour = int(time_data[0])
         is_daytime = (21 > hour > 7)
-        if is_daytime: 
-            dim_factor = 1
-        else:
-            dim_factor = 10 
 
-    
-        pixel_point = self.pixel_start
-        current = 0
-        infill = (255, 255, 255)
-        for index, group in enumerate(data):
-            print("IN LOOP")
-            for i in range(3):
-                if index == 0:
-                    self.np[pixel_point+i] = (group[i]-dim_factor, group[i]-dim_factor, 0)
-                    print(f"Just wrote at {pixel_point+i}")
-                elif index == 1:
-                    self.np[pixel_point+i] = (0, 0, group[i]-dim_factor)
-                else:
-                    if group[i] < 0:
-                        self.np[pixel_point+i] = (0, 0, group[i]-dim_factor)
-                    elif group == 0:
-                        self.np[pixel_point+i] = (100, 100, 100)
+        if is_daytime:
+            pixel_point = self.pixel_start
+            print(data)
+            for index, group in enumerate(data):
+                #print("IN LOOP")
+                for i in range(3):
+                    if index == 0:
+                        self.np[pixel_point+i] = (group[i]//dim_factor, group[i]//dim_factor, 0)
+                        #print(f"Just wrote at {pixel_point+i}")
+                    elif index == 1:
+                        print(f"I am going to write into pixel{pixel_point+i}this data: {group[i]//dim_factor}")
+                        self.np[pixel_point+i] = (0, 0, group[i]//dim_factor)
                     else:
-                        self.np[pixel_point+i] = (group[i]-dim_factor, 0, 0)
-                    
-                print(f"Just wrote at {pixel_point+i}")
-            
-                #self.np[pixel_point + i] = infill
-                #self.np.write()
-            pixel_point += 3
-                #self.np[pixel_point] = (10, group[i], 0)
-        self.np.write()
-        print("ENDING ENDING")
-        print(current)
+                        if group[i] < 0:
+                            self.np[pixel_point+i] = (0, 0, group[i]//dim_factor)
+                        elif group[i] == 0:
+                            self.np[pixel_point+i] = (100, 100, 100)
+                        else:
+                            self.np[pixel_point+i] = (group[i]//dim_factor, 0, 0)
+                        
+                    #print(f"Just wrote at {pixel_point+i}")
+                
+                    #self.np[pixel_point + i] = infill
+                    #self.np.write()
+                pixel_point += 3
+                    #self.np[pixel_point] = (10, group[i], 0)
+            self.np.write()
+            print("Writing completed")
+        else:
+            pass
+        
             
 
     def cycle(self):
@@ -351,16 +347,20 @@ class Time:
         #print(weather)
 
         time_show = self.random_generation()
-        refresh_rate = 5
+        refresh_rate = 1440
 
         while True:
             time_show = self.random_generation()
             refresh_rate -= 1
             if refresh_rate == 0:
+                print("THE WEATHER JUST GOT UPDATED !!!")
+                with open("debug.txt", "a++")as f:
+                    f.write("Weather tool clalled")
                 weather = self.set_weather()
                 self.rtc_tupple()
                 self.draw_weather(weather)
-                print("UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                refresh_rate = 1440
+                
             #self.np.fill((0, 0, 0))
             self.draw_time(time_show)
             #self.draw_weather(weather)
