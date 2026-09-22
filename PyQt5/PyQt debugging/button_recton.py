@@ -1,7 +1,5 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout # 🎯 Added QPushButton here
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt
 
 app = QApplication(sys.argv)
 window = QWidget()

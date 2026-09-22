@@ -16,11 +16,12 @@ Vcc = 5v
 #     mashine for RTC and Pin conffiguration
 from machine import Pin, RTC
 import time
-import network      # wifif connection
+import network      # wifi connection
 import urequests    # api requests
 import neopixel     # neopixel 
 import gc           # memory optimaser
 import random       # random pixel optimisation
+import json
 
 """
 The color groups determine what color wil be displayed for specific siruations.
@@ -28,6 +29,7 @@ COLORS_DAY = The colors for each area for day lightning
 COLORS_NIGHT = The colors for each area for night lightning
 COLOR_GROUPS = The pixel areas as an arey with pixel.
 
+"""
 """
 COLORS_DAY = [(0, 0, 30),(30, 0, 0),(0, 30, 0),(0, 30, 30)]         # !!! set by json file
 COLORS_NIGHT =  [(0, 0, 1),(1, 0, 0),(0, 1, 0),(0, 1, 1)]           # !!! set by json file
@@ -37,9 +39,16 @@ COLOR_GROUPS = [                                                    # !!! set by
             [4, 5, 12, 13, 22, 23],
             [6, 7, 8, 9, 10, 11, 24, 25, 26]
             ]
+"""
 
+with open('config.json', 'r', encoding='utf-8') as file:
+    loaded_data = json.load(file)
+
+COLORS_DAY = loaded_data["colors"]["day_structure"]
+COLORS_NIGHT = loaded_data["colors"]["night_structure"]
+COLOR_GROUPS = loaded_data["colors"]["structure"]
 class Time:
-    def __init__(self, ssid: str, pas_code: str, api: str, rtc: RTC):
+    def __init__(self, ssid: str, pas_code: str, api: str, rtc: RTC, url_weather : str):
         self.ssid = ssid                # !!! set by json file
         self.pas_code = pas_code        # !!! set by json file
         """ 
@@ -58,8 +67,7 @@ class Time:
         #self.pixel_start = 36
         self.url = api
         self.pixel_start = 36
-        self.url_w = "https://api.open-meteo.com/v1/forecast?latitude=52.21099&longitude=7.02238&daily=temperature_2m_max,rain_sum,sunshine_duration&timezone=Europe%2FBerlin&forecast_days=3"
-        # weather url 
+        self.url_w = url_weather
 
     def np_connect(self):
         """
@@ -299,26 +307,26 @@ class Time:
         time_data = self.recive_time() 
         hour = int(time_data[0])
         is_daytime = (21 > hour > 7)
-
-        if is_daytime:
+        print(is_daytime)
+        if is_daytime :
             pixel_point = self.pixel_start
             print(data)
             for index, group in enumerate(data):
                 #print("IN LOOP")
                 for i in range(3):
                     if index == 0:
-                        self.np[pixel_point+i] = (group[i]//dim_factor, group[i]//dim_factor, 0)
+                        self.np[pixel_point+i] = (group[i], group[i], 0)
                         #print(f"Just wrote at {pixel_point+i}")
                     elif index == 1:
-                        print(f"I am going to write into pixel{pixel_point+i}this data: {group[i]//dim_factor}")
-                        self.np[pixel_point+i] = (0, 0, group[i]//dim_factor)
+                        #print(f"I am going to write into pixel{pixel_point+i}this data: {group[i]//dim_factor}")
+                        self.np[pixel_point+i] = (0, 0, group[i])
                     else:
                         if group[i] < 0:
-                            self.np[pixel_point+i] = (0, 0, group[i]//dim_factor)
+                            self.np[pixel_point+i] = (0, 0, group[i])
                         elif group[i] == 0:
                             self.np[pixel_point+i] = (100, 100, 100)
                         else:
-                            self.np[pixel_point+i] = (group[i]//dim_factor, 0, 0)
+                            self.np[pixel_point+i] = (group[i], 0, 0)
                         
                     #print(f"Just wrote at {pixel_point+i}")
                 
@@ -329,46 +337,55 @@ class Time:
             self.np.write()
             print("Writing completed")
         else:
-            pass
+            starting_pix = self.pixel_start
+            for pixel in range(9):
+                self.np[pixel] = (0, 0, 0)
+                starting_pix += pixel
+            self.np.write()
+            print("Didn't write anything")
         
             
 
     def cycle(self):
-        self.np_connect()
+        try:
+            self.np_connect()
 
-        if self.device_connection():
-            pass
-        else:
-            return False
-        self.rtc_tupple()
-        weather = self.set_weather()
-        self.draw_weather(weather)
-        
-        #print(weather)
+            if self.device_connection():
+                pass
+            else:
+                return False
+            self.rtc_tupple()
+            weather = self.set_weather()
+            self.draw_weather(weather)
+            
+            #print(weather)
 
-        time_show = self.random_generation()
-        refresh_rate = 1440
-
-        while True:
             time_show = self.random_generation()
-            refresh_rate -= 1
-            if refresh_rate == 0:
-                print("THE WEATHER JUST GOT UPDATED !!!")
-                with open("debug.txt", "a++")as f:
-                    f.write("Weather tool clalled")
-                weather = self.set_weather()
-                self.rtc_tupple()
-                self.draw_weather(weather)
-                refresh_rate = 1440
-                
-            #self.np.fill((0, 0, 0))
-            self.draw_time(time_show)
-            #self.draw_weather(weather)
-            self.np.write()
-            time.sleep(5)
+            refresh_rate = 1440
+
+            while True:
+                time_show = self.random_generation()
+                refresh_rate -= 1
+                if refresh_rate == 0:
+                    print("THE WEATHER JUST GOT UPDATED !!!")
+                    with open("debug.txt", "a++")as f:
+                        f.write("Weather tool clalled")
+                    weather = self.set_weather()
+                    self.rtc_tupple()
+                    self.draw_weather(weather)
+                    refresh_rate = 1440
+                    
+                #self.np.fill((0, 0, 0))
+                self.draw_time(time_show)
+                #self.draw_weather(weather)
+                self.np.write()
+                time.sleep(30)
+        except Exception as e:
+            print(e)
+            return False
 
             
 
-rtc= RTC()
-t = Time("ShmumaIoT", "BOleNetI", "https://time.now/developer/api/timezone/Europe/Berlin", rtc)
+rtc= RTC() 
+t = Time(loaded_data["personal_data"]["network"], loaded_data["personal_data"]["password"], loaded_data["overall_data"]["URL_TIME"], rtc, loaded_data["overall_data"]["URL_WEATHER"])
 t.cycle()
