@@ -131,7 +131,7 @@ class Time:
                 else:
                     self.np[pix] = (0, 100, 100)
                 self.np.write()
-            count += 1
+
     
 
     def rtc_tupple(self):# -> Tupple
@@ -337,13 +337,14 @@ class Time:
             self.np.write()
             print("Writing completed")
         else:
+            pass
             starting_pix = self.pixel_start
             for pixel in range(9):
-                self.np[pixel] = (0, 0, 0)
-                starting_pix += pixel
+                self.np[starting_pix] = (0, 0, 0)
+                starting_pix += 1
             self.np.write()
             print("Didn't write anything")
-        
+
             
 
     def cycle(self):
@@ -377,7 +378,7 @@ class Time:
                     
                 #self.np.fill((0, 0, 0))
                 self.draw_time(time_show)
-                #self.draw_weather(weather)
+                self.draw_weather(weather)
                 self.np.write()
                 time.sleep(30)
         except Exception as e:
