@@ -1,0 +1,31 @@
+{
+    "personal_data" : 
+    {
+        "network" : "ShmumaIoT",
+        "password" : "BOleNetI"
+
+    },
+
+    "overall_data" :
+    {
+        "URL_TIME" : "https://time.now/developer/api/timezone/Europe/Berlin",
+        "URL_WEATHER" : "https://api.open-meteo.com/v1/forecast?latitude=52.21099&longitude=7.02238&daily=temperature_2m_max,rain_sum,sunshine_duration&timezone=Europe%2FBerlin&forecast_days=3",
+        "Time_zone" : "Europe/Berlin"
+
+    },
+
+    "colors" :
+    {
+        "day_structure" : [[0, 0, 30], [30, 0, 0], [0, 30, 0], [0, 30, 30]],
+        "night_structure" : [[0, 0, 1], [1, 0, 0], [0, 1, 0], [0, 1, 1]],
+        "structure" :   [                                
+                        [0, 17, 18],
+                        [1, 2, 3, 14, 15, 16, 19, 20, 21],
+                        [4, 5, 12, 13, 22, 23],
+                        [6, 7, 8, 9, 10, 11, 24, 25, 26]
+                        ]
+    }
+
+
+
+}
