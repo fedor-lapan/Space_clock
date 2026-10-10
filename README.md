@@ -31,3 +31,5 @@
 * solder the neopixel strip as shown bellow:
 * ![soldering tutorial](images/solder_tutor.jpg)
 * next glue the esp on the back ![back_of the clock](images/clock_back.jpg)
+* weather [API](https://open-meteo.com/en/docs) I use in the config.json
+* time [API](https://time.now/developer) for it 
