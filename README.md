@@ -7,6 +7,10 @@ Space clock project readme:
       - Important : 14.5 mm between each LED
     - 3d printer to print the shell
 
+
+IMPORTANT:
+    - Credits to [Magic Muesli ](https://woof.tech/@dr_muesli)
+    - Website available [here](https://spaceclock.carrd.co/)
 What is a Space clock:
     - Space clock = Space ( hacker space ) clock
     - ![Space clock from the front](images/both_clocks.jpg)
