@@ -9,6 +9,7 @@ Space clock project readme:
 
 What is a Space clock:
   - Space clock = Space ( hacker space ) clock
+  - ![Space clock from the front](images/both_clocks.jpg)
 !! Not a binary clock !!
 How to read the time of a space clock:
   - The first colour group from the left displays the hours first digit.
