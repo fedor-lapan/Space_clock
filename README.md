@@ -21,5 +21,5 @@ What is the code structure behind the Space clock:
     - A "config.json" file that includes user specs like WiFi password, brightness and time zone
 How do I make a space clock for my self?
     - solder the neopixel strip as shown bellow:
-    - ![soldering tutorial](images/solder_tutorial.jpg)
+    - ![soldering tutorial](images/solder_tutor.jpg)
     - next glue the esp on the back ![back_of the clock](images/clock_back.jpg)
