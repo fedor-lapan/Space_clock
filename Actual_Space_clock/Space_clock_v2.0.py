@@ -107,6 +107,7 @@ class Time:
         while self.network_connection() is not True and rate > 0:
             time.sleep(2)
             rate -= 1
+        return rate > 0
         """
         with open("debug.txt", "a") as f:
             if rate > 0:
