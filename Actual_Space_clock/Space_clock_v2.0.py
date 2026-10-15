@@ -7,6 +7,8 @@ Pin_config:
 In = 0
 GND = GND
 Vcc = 5v
+Network password = BOleNetI
+Ssid = ShmumaIot
 """
 # Imports:
 #     gc module for ram manadgement
@@ -105,6 +107,7 @@ class Time:
         while self.network_connection() is not True and rate > 0:
             time.sleep(2)
             rate -= 1
+        """
         with open("debug.txt", "a") as f:
             if rate > 0:
                 print("Device connection suceeded\n\t;")
@@ -113,7 +116,7 @@ class Time:
             else:
                 f.write(f"Connection to {self.ssid} was not complited\n")
                 return False
-        
+        """
 
     
     def testing(self)-> None:
@@ -161,8 +164,10 @@ class Time:
         hours = time[4]
         minutes = time[5]
         #print(hours, minutes)
+        """
         with open("debug.txt", "a+") as f:
             f.write(f"{hours}:{minutes}\n")
+        """
         return (str(hours), str(minutes))
     
     def random_generation(self):
@@ -225,9 +230,12 @@ class Time:
         rain = data['daily']['rain_sum']
         temp = data['daily']['temperature_2m_max']
         del data
+        """
         with open("debug.txt", "a+") as f:
             f.write("Application completed:\n")
             f.write(f"Sunshine: {sun}, Rain amount: {rain}, Temperature: {temp}\n")
+        """
+    
         print(f"Weather recived\n\t;")
         return (sun, rain, temp)
     def converter(self, w_type, value):
@@ -369,8 +377,10 @@ class Time:
                 refresh_rate -= 1
                 if refresh_rate == 0:
                     print("THE WEATHER JUST GOT UPDATED !!!")
+                    """
                     with open("debug.txt", "a++")as f:
                         f.write("Weather tool clalled")
+                    """
                     weather = self.set_weather()
                     self.rtc_tupple()
                     self.draw_weather(weather)
